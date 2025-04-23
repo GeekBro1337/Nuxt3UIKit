@@ -10,13 +10,21 @@ export default {
   
           // Светлая тема
           light: {
-            background: '#ffffff',
+            background: {
+              default: '#f3f4f6',
+              lighter: '#ffffff',
+              darker: '#e5e7eb'
+            },
             text: '#111827',
           },
   
           // Тёмная тема
           dark: {
-            background: '#111827',
+            background: {
+              default: '#0f172a',
+              lighter: '#1e293b',
+              darker: '#020617'
+            },
             text: '#f9fafb',
           },
         },

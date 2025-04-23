@@ -12,13 +12,7 @@
         <Gbutton></Gbutton>
     </Gform>
 
-    <button @click="toggleTheme" class="p-2 bg-primary text-white rounded">
-  Переключить тему
-    </button>
-
 </template>
 
 <script setup lang="ts">
-import { useTheme } from '@/composables/useTheme'
-const { toggleTheme } = useTheme()
 </script>

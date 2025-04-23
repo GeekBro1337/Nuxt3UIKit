@@ -19,5 +19,14 @@ useHead({
 </script>
 
 <template>
-  <NuxtLayout />
+  <div class="min-h-screen
+  bg-light-background-default
+  dark:bg-dark-background-default
+  text-light-text
+  dark:text-dark-text
+  transition-colors duration-300">
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
+</div>
 </template>
