@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer base {
+
+  html {
+    @apply bg-white text-black antialiased;
+  }
+
+
+  html.dark {
+    @apply bg-gray-900 text-gray-100;
+  }
+
+  /* ссылки */
+  a {
+    @apply text-primary-600 hover:text-primary-500 transition;
+  }
+  html.dark a {
+    @apply text-primary-400 hover:text-primary-300;
+  }
+
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .transition-colors-theme {
+    @apply transition-colors duration-300;
+  }
+}
+
+html, html.dark {
+  @apply transition-colors-theme;
+}
