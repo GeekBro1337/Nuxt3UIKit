@@ -1,25 +1,19 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useFetch } from '#app'
+import burger from '~/components/icons/burger.vue'
+import Close from './icons/close.vue'
 
-interface NavChild {
-  id: number
-  url: string
-  name: string
-  children?: NavChild[]
-}
 
-/* ===== 1. Загружаем меню ===== */
 const { data, error } = await useFetch<{ data: NavChild[] }>('/api/navigation')
 const nav = ref<NavChild[]>(data.value?.data || [])
 
-/* ===== 2. Состояния ===== */
-const openMain   = ref<number | null>(null) // открытый пункт на десктопе
-const mobileOpen = ref(false)               // открыт ли бургер
-const openMobSub = ref<number | null>(null) // открыт ли подпункт в бургере
 
-/* ===== 3. Закрытия ===== */
-// Esc
+const openMain   = ref<number | null>(null) 
+const mobileOpen = ref(false)               
+const openMobSub = ref<number | null>(null) 
+
+
 function onEsc (e: KeyboardEvent) {
   if (e.key === 'Escape') {
     openMain.value = null
@@ -28,10 +22,10 @@ function onEsc (e: KeyboardEvent) {
   }
 }
 
-// Клик вне десктоп-меню
-const desktopMenuRef = ref<HTMLElement | null>(null)
+
+const MenuRef = ref<HTMLElement | null>(null)
 function onClickOutside (e: MouseEvent) {
-  if (desktopMenuRef.value && !desktopMenuRef.value.contains(e.target as Node)) {
+  if (MenuRef.value && !MenuRef.value.contains(e.target as Node)) {
     openMain.value = null
   }
 }
@@ -40,56 +34,44 @@ onMounted(() => {
   window.addEventListener('keydown', onEsc)
   document.addEventListener('click', onClickOutside)
 })
+
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', onEsc)
   document.removeEventListener('click', onClickOutside)
 })
 
-/* Блокируем прокрутку, когда бургер открыт */
-watch(mobileOpen, async v => {
-  await nextTick()
-  document.body.classList.toggle('overflow-hidden', v)
-})
-
-/* ===== 4. Вспомогательная функция ===== */
 function toggleMain(id: number) {
   openMain.value = openMain.value === id ? null : id
 }
 </script>
 
 <template>
-  <!-- ╔══ Навбар ══╗ -->
-  <nav class="bg-primary-50 dark:bg-gray-900 shadow">
+
+  <nav class="bg-primary-50 dark:bg-secondery-900 shadow">
     <div class="mx-auto max-w-screen-xl flex items-center justify-between px-4 py-3">
 
-      <!-- Логотип / название -->
       <NuxtLink to="/" class="text-xl font-bold text-primary-600 dark:text-white">
         Shop
       </NuxtLink>
       <ThemeToggle size="sm" class="ml-4" />
 
-      <!-- ══ Burger ══ -->
       <button
-        class="md:hidden p-2 rounded-lg hover:bg-primary-100 dark:hover:bg-gray-800
-               text-primary-600 dark:text-primary-300 focus:outline-none transition"
+        class=" w-10 md:hidden p-2 rounded-lg hover:bg-primary-100 dark:hover:bg-secondery-800
+               text-primary-600 dark:text-primary-300 focus:outline-none transition "
         @click="mobileOpen = !mobileOpen"
       >
-        <!-- иконки -->
-        <svg v-if="!mobileOpen" class="w-6 h-6" fill="none" stroke="currentColor"
-             viewBox="0 0 24 24" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round"
-                d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-        <svg v-else class="w-6 h-6" fill="none" stroke="currentColor"
-             viewBox="0 0 24 24" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round"
-                d="M6 18L18 6M6 6l12 12" />
-        </svg>
+
+        <burger
+        class="md:hidden p-2 rounded-lg hover:bg-primary-100 dark:hover:bg-secondery-800
+               text-primary-600 dark:text-primary-300 focus:outline-none transition"
+        v-if="!mobileOpen"
+        />
+        <Close v-else/>
       </button>
 
-      <!-- ══ Десктоп-меню ══ -->
+    
       <ul
-        ref="desktopMenuRef"
+        ref="MenuRef"
         class="hidden md:flex gap-8 font-medium relative z-10"
       >
         <li
@@ -97,7 +79,7 @@ function toggleMain(id: number) {
           :key="item.id"
           class="relative select-none"
         >
-          <!-- Корневой пункт -->
+
           <button
             v-if="item.children?.length"
             type="button"
@@ -130,17 +112,17 @@ function toggleMain(id: number) {
           <!-- Подменю -->
           <ul
             v-if="item.children?.length && openMain === item.id"
-            class="absolute left-0 top-full min-w-[220px]
-                   bg-white dark:bg-gray-800 border border-primary-100 dark:border-gray-700
+            class="absolute left-0 top-full min-w-[150px]
+                   bg-white dark:bg-gray-800 border border-primary-100 dark:border-secondery-700
                    shadow-lg rounded-b-xl py-2 mt-1"
           >
             <li v-for="child in item.children" :key="child.id">
               <NuxtLink
                 :to="child.url"
                 class="block px-4 py-2 whitespace-nowrap
-                       text-gray-700 dark:text-gray-200
+                       text-secondery-700 dark:text-secondery-200
                        hover:bg-primary-500 hover:text-white
-                       dark:hover:bg-primary-400 dark:hover:text-gray-900
+                       dark:hover:bg-primary-400 dark:hover:text-secondery-900
                        transition"
               >
                 {{ child.name }}
@@ -151,21 +133,20 @@ function toggleMain(id: number) {
       </ul>
     </div>
 
-    <!-- ══ МОБИЛЬНЫЙ МОДАЛЬНЫЙ БУРГЕР ══ -->
 <Transition
   enter-active-class="transition duration-300"
   enter-from-class="opacity-0"
   leave-active-class="transition duration-200"
   leave-to-class="opacity-0"
 >
-  <!-- backdrop -->
+
   <div
     v-if="mobileOpen"
     class="fixed inset-0 z-40 flex md:hidden"
   >
-    <!-- тёмный фон -->
+
     <div
-      class="absolute inset-0 bg-black/40 backdrop-blur-sm"
+      class="absolute inset-0 bg-secondery-900/50"
       @click="mobileOpen = false"
     />
 
@@ -178,11 +159,13 @@ function toggleMain(id: number) {
     >
       <aside
         v-if="mobileOpen"
-        class="relative ml-auto w-72 max-w-[80%] h-full overflow-y-auto
-               bg-white dark:bg-gray-900
-               shadow-xl border-l border-primary-100 dark:border-gray-700"
+        class="relative ml-auto 
+        w-4/5 
+        max-w-4/5 
+        h-full overflow-y-auto
+      bg-secondery-100 dark:bg-secondery-900
+        shadow-xl border-l border-primary-100 dark:border-secondery-700"
       >
-        <!-- Шапка -->
         <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800">
           <span class="text-lg font-semibold text-primary-600 dark:text-primary-300">Меню</span>
           <button @click="mobileOpen = false" class="p-2 rounded-md hover:bg-primary-100 dark:hover:bg-gray-800">
@@ -193,10 +176,9 @@ function toggleMain(id: number) {
           </button>
         </div>
 
-        <!-- Список -->
+       
         <ul class="p-4 space-y-2">
           <li v-for="item in nav" :key="`m-${item.id}`">
-            <!-- Аккордеон -->
             <button
               v-if="item.children?.length"
               @click="openMobSub = openMobSub === item.id ? null : item.id"
@@ -213,7 +195,6 @@ function toggleMain(id: number) {
               </svg>
             </button>
 
-            <!-- прямой линк -->
             <NuxtLink
               v-else
               :to="item.url"
@@ -231,7 +212,7 @@ function toggleMain(id: number) {
               <li v-for="child in item.children" :key="`mc-${child.id}`">
                 <NuxtLink
                   :to="child.url"
-                  class="block py-1 text-gray-600 dark:text-gray-300
+                  class="block py-1 text-secondery-600 dark:text-secondery-300
                          hover:text-primary-500 dark:hover:text-primary-200 transition"
                   @click="mobileOpen = false"
                 >
@@ -248,7 +229,6 @@ function toggleMain(id: number) {
 </Transition>
 
 
-    <!-- Ошибка -->
     <div v-if="error" class="bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 p-4 text-sm">
       Не удалось загрузить меню
     </div>
